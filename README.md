@@ -1,4 +1,7 @@
-scriptcookies
-=============
+小脚本库
+========
+日常中有许多要不断重复做的事情，当然交给脚本来处理，自己悠闲地和咖啡去
 
-There are many script cookies
+
+* setup_ubuntu.sh: 装完ubuntu系统之后，更新源，安装常用软件，进行一些个人偏好设置。
+
