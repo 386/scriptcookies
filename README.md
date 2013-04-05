@@ -4,4 +4,5 @@
 
 
 * setup_ubuntu.sh: 装完ubuntu系统之后，更新源，安装常用软件，进行一些个人偏好设置。
+* mirrorbuild.sh: 制作本地的APT源镜像，脚本中会同时制作10.04和12.04的源。
 
