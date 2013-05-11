@@ -22,12 +22,20 @@ function is_root()
 function update_apt_source()
 {
     UBUNTU_CODENAME=$(lsb_release  -c | awk '{print $NF}')
-    APT_URL="http://mirrors.163.com/.help/sources.list.$UBUNTU_CODENAME"
     JDK_URL="deb http://us.archive.ubuntu.com/ubuntu/ hardy multiverse"
     APT_FILE="/etc/apt/sources.list"
     mv $APT_FILE $APT_FILE.bak
-    wget $APT_URL -O $APT_FILE
-    echo "$JDK_URL" >> /etc/apt/sources.list
+
+    cat >> $APT_FILE << EOF
+deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-proposed main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-backports main restricted universe multiverse
+$JDK_URL
+EOF
+    # 添加nvidia显卡驱动地址
+    sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
     apt-get update && apt-get -y upgrade
 }
 
@@ -35,8 +43,11 @@ function update_apt_source()
 # 安装常用软件
 function install_software()
 {
-    apt-get install -y vim vim-gnome git chromium-browser ipython tree sun-java6-jdk \
-        flashplugin-installer gnome-shell virtualbox
+    apt-get install -y vim vim-gnome git-core chromium-browser ipython tree sun-java6-jdk \
+        flashplugin-installer gnome-shell python-pip virtualbox nvidia-current \
+        nvidia-current-modaliases nvidia-settings vlc stardict etckeeper
+
+    pip install markdown
 }
 
 
