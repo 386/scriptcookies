@@ -1,7 +1,8 @@
 #!/bin/bash -oe
+
 function init_var()
 {
-    GIT_USERNAME='linliang'
+    GIT_USERNAME='crazygit'
     GIT_EMAIL="linliang@gmail.com"
 }
 
@@ -21,7 +22,11 @@ function is_root()
 # 使用163的更新源，同时加上JDK的源
 function update_apt_source()
 {
-    UBUNTU_CODENAME=$(lsb_release  -c | awk '{print $NF}')
+    UBUNTU_CODENAME=$(lsb_release -cs)
+    if [ -z $UBUNTU_CODENAME ];then
+        echo "No UBUNTU_CODENAME assigend"
+        exit 1
+    fi
     JDK_URL="deb http://us.archive.ubuntu.com/ubuntu/ hardy multiverse"
     APT_FILE="/etc/apt/sources.list"
     mv $APT_FILE $APT_FILE.bak
