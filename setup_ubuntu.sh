@@ -1,5 +1,8 @@
 #!/bin/bash -oe
 
+# FIXME:
+# 运行脚本之前，先给当前用户不要输入密码的权限
+# %sudo   ALL=(ALL:ALL) NOPASSWD:ALL
 function init_var()
 {
     GIT_USERNAME='crazygit'
@@ -31,7 +34,8 @@ function update_apt_source()
     APT_FILE="/etc/apt/sources.list"
     sudo mv $APT_FILE $APT_FILE.bak
 
-    cat >> $APT_FILE << EOF
+    tmp_source=$(mktemp -u)
+    cat >> $tmp_source << EOF
 deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
 deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
 deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
@@ -39,10 +43,12 @@ deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-proposed main restricted uni
 deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-backports main restricted universe multiverse
 $JDK_URL
 EOF
+    sudo mv $tmp_source $APT_FILE
+    #FIXME: 添加源的时候需要输入Enter
     # 添加nvidia显卡驱动地址
-    sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
+    #sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
     # 添加fcitx源
-    sudo add-apt-repository ppa:fcitx-team/nightly
+    #sudo add-apt-repository ppa:fcitx-team/nightly
     sudo apt-get update && sudo apt-get -y upgrade
 }
 
@@ -50,14 +56,15 @@ EOF
 # 安装常用软件
 function install_software()
 {
-    sudo apt-get install -y vim vim-gnome git-core chromium-browser ipython tree sun-java6-jdk \
+    sudo apt-get install -y vim vim-gnome git-core chromium-browser ipython tree \
         flashplugin-installer python-pip virtualbox nvidia-current \
         nvidia-current nvidia-settings vlc stardict etckeeper ctags curl
 
     sudo pip install markdown flake8
 
     #安装 fcitx输入法
-    sudo apt-get install -y fcitx fcitx-config-gtk fcitx-sunpinyin fcitx-googlepinyin fcitx-module-cloud \
+    sudo apt-get purge ibus
+    sudo apt-get install -y fcitx fcitx-config-gtk fcitx-sunpinyin fcitx-googlepinyin fcitx-module-cloudpinyin \
          fcitx-table-all
     im-switch -s fcitx -z default
 }
@@ -110,6 +117,7 @@ function download_githubs
         github_dir=$HOME/github
         mkdir -p $github_dir
     fi
+    #FIXME：更新子库没有权限
     cd $github_dir
     git clone https://github.com/crazygit/crazygit.github.com.git
     git clone https://github.com/crazygit/scriptcookies.git
@@ -122,9 +130,12 @@ function download_githubs
 
 function main()
 {
-   init_var
-   update_apt_source
+   #init_var
+   #update_apt_source
    install_software
    config_software
    download_githubs
 }
+
+main
+sudo shutdown -h now
