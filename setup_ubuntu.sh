@@ -1,8 +1,15 @@
 #!/bin/bash -oe
 
 # FIXME:
+#==================================================
+# NOTE:
 # 运行脚本之前，先给当前用户不要输入密码的权限
 # %sudo   ALL=(ALL:ALL) NOPASSWD:ALL
+#==================================================
+
+export PS4='[+${BASH_SOURCE}:${LINENO}:${FUNCNAME[0]}:] '
+
+
 function init_var()
 {
     GIT_USERNAME='crazygit'
@@ -10,45 +17,36 @@ function init_var()
 }
 
 
-# 因为要修改源等和安装软件，需要root权限，所以先获得ROOT权限
-#function is_root()
-#{
-#    ROOT_UID=0
-#
-#    if [ $UID -ne $ROOT_UID ];then
-#        echo "This script need ROOT right, Please run as root."
-#        exit
-#    fi
-#}
-
-
 # 使用163的更新源，同时加上JDK的源
 function update_apt_source()
 {
+    # 修改source.list
     UBUNTU_CODENAME=$(lsb_release -cs)
     if [ -z $UBUNTU_CODENAME ];then
         echo "No UBUNTU_CODENAME assigend"
         exit 1
     fi
-    JDK_URL="deb http://archive.canonical.com/ lucid partner"
+
+    JDK_URL="deb http://us.archive.ubuntu.com/ubuntu/ hardy multiverse"
     APT_FILE="/etc/apt/sources.list"
     sudo mv $APT_FILE $APT_FILE.bak
-
     tmp_source=$(mktemp -u)
+
     cat >> $tmp_source << EOF
-deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-proposed main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ $UBUNTU_CODENAME-backports main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu/ $UBUNTU_CODENAME-proposed main restricted universe multiverse
+deb http://mirrors.ustc.edu.cn/ubuntu/ $UBUNTU_CODENAME-backports main restricted universe multiverse
 $JDK_URL
 EOF
     sudo mv $tmp_source $APT_FILE
-    #FIXME: 添加源的时候需要输入Enter
+
     # 添加nvidia显卡驱动地址
-    #sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
+    sudo add-apt-repository -y ppa:ubuntu-x-swat/x-updates
+
     # 添加fcitx源
-    #sudo add-apt-repository ppa:fcitx-team/nightly
+    sudo add-apt-repository -y ppa:fcitx-team/nightly
     sudo apt-get update && sudo apt-get -y upgrade
 }
 
@@ -56,23 +54,34 @@ EOF
 # 安装常用软件
 function install_software()
 {
+    # 安装常用软件
     sudo apt-get install -y vim vim-gnome git-core chromium-browser ipython tree \
-        flashplugin-installer python-pip virtualbox nvidia-current \
-        nvidia-current nvidia-settings vlc stardict etckeeper ctags curl
+        flashplugin-installer python-pip virtualbox vlc stardict ctags curl meld expect
 
     sudo pip install markdown flake8
 
+    #安装显卡驱动
+    sudo apt-get install -y nvidia-current nvidia-settings
+
     #安装 fcitx输入法
-    sudo apt-get purge ibus
+    sudo apt-get purge -y ibus
     sudo apt-get install -y fcitx fcitx-config-gtk fcitx-sunpinyin fcitx-googlepinyin fcitx-module-cloudpinyin \
          fcitx-table-all
     im-switch -s fcitx -z default
+
+    # 安装JDK, 设置自动同意安装协议
+    export DEBIAN_FRONTEND=noninteractive
+    echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" | debconf-set-selections
+    sudo -E apt-get install -y sun-java6-jdk
 }
 
 
-# 不需要ROOT权限
 function config_software()
 {
+
+    # 设置标题栏最大，最小化居右（适用于ubuntu12.xx）
+    gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
+
     # 配置Git信息
     git config --global user.name "$GIT_USERNAME"
     git config --global user.email "$GIT_EMAIL"
@@ -106,6 +115,7 @@ EOF
     sed -i 's/HISTFILESIZE=2000/HISTFILESIZE=20000/' $BASHRC_FILE
 }
 
+
 function download_githubs
 {
     current_user=$USER
@@ -117,6 +127,7 @@ function download_githubs
         github_dir=$HOME/github
         mkdir -p $github_dir
     fi
+
     #FIXME：更新子库没有权限
     cd $github_dir
     git clone https://github.com/crazygit/crazygit.github.com.git
@@ -130,8 +141,8 @@ function download_githubs
 
 function main()
 {
-   #init_var
-   #update_apt_source
+   init_var
+   update_apt_source
    install_software
    config_software
    download_githubs
