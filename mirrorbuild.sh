@@ -1,13 +1,26 @@
 #!/bin/bash
 
-# USAGE: 
+# install tools
+# sudo apt-get install debmirror
 
-LOG="/path/to/log/$(date '+%F.%T').txt"  # Directory to store the log in
-APT_MIRROR="/path/to/mirrors.ustc.edu.cn" # Directory to store the apt mirror in
-JDK_MIRROR="/path/to/us.archive.ubuntu.com" # Directory to store the jdk mirror in
+LOG_DIR="/disk_3T/ubuntu_mirrors/log"
+LOG="$LOG_DIR/$(date '+%F.%T').txt"
+test -d $LOG_DIR || mkdir -p $LOG_DIR
 
 # save mirror log
 exec &> $LOG
+
+MIRROR_DIR="/disk_3T/ubuntu_mirrors/"
+test -d $MIRROR_DIR || mkdir -p $MIRROR_DIR
+
+APT_MIRROR="$MIRROR_DIR/mirrors.ustc.edu.cn"
+JDK_MIRROR="$MIRROR_DIR/us.archive.ubuntu.com"
+PUPPET_MIRROR="$MIRROR_DIR/apt.puppetlabs.com"
+
+# Set up keyring to correctly verify Release signatures
+GNUPGHOME="$HOME/.gnupg"
+test -f $GNUPGHOME/pubring.gpg || gpg --no-default-keyring --keyring pubring.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
+test -f GNUPGHOME/trustedkeys.gpg || gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 # Arch=         -a      # Architecture. For Ubuntu can be i386, powerpc or amd64.
 # sparc, only starts in dapper, it is only the later models of sparc.
@@ -76,8 +89,8 @@ debmirror       -a $arch \
                 $outPath
 echo "Mirror ustc finished at $(date)"
 
-# Mirror JDK-5, JDK-6
-echo "Start mirror jdk-6 at $(date)"
+# Mirror Java JDK
+echo "Start mirror Java JDK at $(date)"
 debmirror       -a $arch \
                 --no-source \
                 -s multiverse \
@@ -88,4 +101,18 @@ debmirror       -a $arch \
                 -e rsync \
                 -v \
                 $JDK_MIRROR
-echo "Mirror jdk-6 finished at $(date)"
+echo "Mirror Jave JDK finished at $(date)"
+
+# Mirror Puppet
+echo "Start mirror Puppet at $(date)"
+debmirror       -a $arch \
+                --no-source \
+                -s main \
+                -h apt.puppetlabs.com \
+                -d lucid,precise \
+                -r packages/apt \
+                --progress \
+                -e rsync \
+                -v \
+                $PUPPET_MIRROR
+echo "Mirror Puppet finished at $(date)"
