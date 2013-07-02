@@ -10,7 +10,7 @@ test -d $LOG_DIR || mkdir -p $LOG_DIR
 # save mirror log
 exec &> $LOG
 
-MIRROR_DIR="/disk_3T/ubuntu_mirrors/"
+MIRROR_DIR="/disk_3T/ubuntu_mirrors"
 test -d $MIRROR_DIR || mkdir -p $MIRROR_DIR
 
 APT_MIRROR="$MIRROR_DIR/mirrors.ustc.edu.cn"
@@ -20,7 +20,7 @@ PUPPET_MIRROR="$MIRROR_DIR/apt.puppetlabs.com"
 # Set up keyring to correctly verify Release signatures
 GNUPGHOME="$HOME/.gnupg"
 test -f $GNUPGHOME/pubring.gpg || gpg --no-default-keyring --keyring pubring.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
-test -f GNUPGHOME/trustedkeys.gpg || gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
+test -f $GNUPGHOME/trustedkeys.gpg || gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 # Arch=         -a      # Architecture. For Ubuntu can be i386, powerpc or amd64.
 # sparc, only starts in dapper, it is only the later models of sparc.
