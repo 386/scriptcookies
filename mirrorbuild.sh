@@ -1,7 +1,22 @@
 #!/bin/bash
 
+#============================================================================
+# Run below command for the first time
+#============================================================================
+cat<< EOF
 # install tools
-# sudo apt-get install debmirror
+sudo apt-get install debmirror
+
+# Set up keyring to correctly verify Release signatures
+gpg --no-default-keyring --keyring pubring.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
+gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# add public key for puppet
+wget http://apt.puppetlabs.com/keyring.gpg -O /tmp/keyring.gpg
+gpg --no-default-keyring --keyring pubring.gpg --import /tmp/keyring.gpg
+gpg --no-default-keyring --keyring trustedkeys.gpg --import /tmp/keyring.gpg
+rm -f /tmp/keyring.gpg
+EOF
 
 LOG_DIR="/disk_3T/ubuntu_mirrors/log"
 LOG="$LOG_DIR/$(date '+%F.%T').txt"
@@ -17,10 +32,6 @@ APT_MIRROR="$MIRROR_DIR/mirrors.ustc.edu.cn"
 JDK_MIRROR="$MIRROR_DIR/us.archive.ubuntu.com"
 PUPPET_MIRROR="$MIRROR_DIR/apt.puppetlabs.com"
 
-# Set up keyring to correctly verify Release signatures
-GNUPGHOME="$HOME/.gnupg"
-test -f $GNUPGHOME/pubring.gpg || gpg --no-default-keyring --keyring pubring.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
-test -f $GNUPGHOME/trustedkeys.gpg || gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 # Arch=         -a      # Architecture. For Ubuntu can be i386, powerpc or amd64.
 # sparc, only starts in dapper, it is only the later models of sparc.
