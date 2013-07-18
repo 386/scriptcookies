@@ -17,7 +17,7 @@ function init_var()
 }
 
 
-# 使用163的更新源，同时加上JDK的源
+# 使用ustc的更新源，同时加上JDK的源
 function update_apt_source()
 {
     # 修改source.list
@@ -78,7 +78,6 @@ function install_software()
 
 function config_software()
 {
-
     # 设置标题栏最大，最小化居右（适用于ubuntu12.xx）
     gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
 
@@ -86,11 +85,6 @@ function config_software()
     git config --global user.name "$GIT_USERNAME"
     git config --global user.email "$GIT_EMAIL"
     git config --global color.ui auto
-
-    # 配置vim
-    ssh -o StrictHostKeyChecking=no git@github.com
-    git clone git://github.com/crazygit/vimconf.git ~/.vim
-    bash ~/.vim/install.sh
 
     # 给man pages添加颜色
     BASHRC_FILE="$HOME/.bashrc"
@@ -118,24 +112,43 @@ EOF
 
 function download_githubs
 {
+    # add github.com to known_hosts for first time to connect github.com
+    ssh -o StrictHostKeyChecking=no git@github.com
+
+    # 安装vim
+    git clone https://github.com/crazygit/vimconf.git ~/.vim
+    bash ~/.vim/install.sh
+    cd ~/.vim && git remote set-url origin git@github.com:crazygit/vimconf.git
+
     current_user=$USER
     github_dir=/data/github
     sudo mkdir -p $github_dir
     sudo chown -R $current_user:$current_user /data
+
     if [ ! -d $github_dir ];then
         echo "Create <$github_dir> dir failed. use $HOME instead"
         github_dir=$HOME/github
         mkdir -p $github_dir
     fi
 
-    #FIXME：更新子库没有权限
     cd $github_dir
+    # 下载常用git库
     git clone https://github.com/crazygit/crazygit.github.com.git
     git clone https://github.com/crazygit/scriptcookies.git
     cd $github_dir/crazygit.github.com && git remote set-url origin git@github.com:crazygit/crazygit.github.com.git
     init_blog=$github_dir/crazygit.github.com/init_env.sh
     test -f $init_blog && bash $init_blog
     cd $github_dir/scriptcookies && git remote set-url origin git@github.com:crazygit/scriptcookies.git
+}
+
+
+function add_github_hooks()
+{
+    wget https://gist.github.com/crazygit/6027772/raw/987ab611d917c109a1dab811dfe22cfbca9651e5/pre-commit -O /tmp/pre-commit
+    chmod +x /tmp/pre-commit
+    cp /tmp/pre-commit ~/.vim/.git/hooks
+    find $github_dir -type d  -name hooks -exec cp /tmp/pre-commit {} \;
+    rm -vf /tmp/pre-commit
 }
 
 
@@ -146,6 +159,7 @@ function main()
    install_software
    config_software
    download_githubs
+   add_github_hooks
 }
 
 main
