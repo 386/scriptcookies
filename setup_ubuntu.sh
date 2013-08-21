@@ -4,7 +4,8 @@
 #==================================================
 # NOTE:
 # 运行脚本之前，先给当前用户不要输入密码的权限
-# %sudo   ALL=(ALL:ALL) NOPASSWD:ALL
+# 运行如下命令:
+# $ sudo sed -i 's/%sudo ALL=(ALL) ALL/%sudo ALL=(ALL) NOPASSWD:ALL/' /etc/sudoers
 #==================================================
 
 export PS4='[+${BASH_SOURCE}:${LINENO}:${FUNCNAME[0]}:] '
@@ -43,7 +44,7 @@ EOF
     sudo mv $tmp_source $APT_FILE
 
     # 添加nvidia显卡驱动地址
-    sudo add-apt-repository -y ppa:ubuntu-x-swat/x-updates
+    #sudo add-apt-repository -y ppa:ubuntu-x-swat/x-updates
 
     # 添加fcitx源
     sudo add-apt-repository -y ppa:fcitx-team/nightly
@@ -56,12 +57,14 @@ function install_software()
 {
     # 安装常用软件
     sudo apt-get install -y vim vim-gnome git-core chromium-browser ipython tree \
-        flashplugin-installer python-pip virtualbox vlc stardict ctags curl meld expect
+        flashplugin-installer python-pip virtualbox vlc stardict ctags curl meld expect \
 
+    sudo apt-get install -y gnome-session-fallback  # gnome-classic 桌面
+    sudo apt-get install -y nautilus-open-terminal  # 右键打开终端
     sudo pip install markdown flake8
 
     #安装显卡驱动
-    sudo apt-get install -y nvidia-current nvidia-settings
+    #sudo apt-get install -y nvidia-current nvidia-settings
 
     #安装 fcitx输入法
     sudo apt-get purge -y ibus
@@ -71,7 +74,7 @@ function install_software()
 
     # 安装JDK, 设置自动同意安装协议
     export DEBIAN_FRONTEND=noninteractive
-    echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" | debconf-set-selections
+    echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" | sudo debconf-set-selections
     sudo -E apt-get install -y sun-java6-jdk
 }
 
@@ -149,6 +152,14 @@ function add_github_hooks()
     cp /tmp/pre-commit ~/.vim/.git/hooks
     find $github_dir -type d  -name hooks -exec cp /tmp/pre-commit {} \;
     rm -vf /tmp/pre-commit
+}
+
+function install_dev_packages()
+{
+    sudo apt-get install -y mysql-server-5.5        # mysql数据库
+    sudo apt-get install -y apache2
+    sudo apt-get install -y php5 php5-gd php5-mysql libapache2-mod-php5
+    sudo apt-get install -y phpmyadmin
 }
 
 
