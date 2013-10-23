@@ -102,11 +102,11 @@ export LESS_TERMCAP_so=$'\E[01;44;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
 
+PS1='[ \[\033[01;34m\]\w\[\033[00m\] ]\n\[\033[01;32m\]\u@\h\[\033[00m\]:\$ '
+
 EOF
     # 让命令行支持vi模式
     echo "set -o vi" >> $BASHRC_FILE
-    # 给命令行提示符号颜色
-    sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' $BASHRC_FILE
     # 增加记录HISTORY的条数
     sed -i 's/HISTSIZE=1000/HISTSIZE=10000/' $BASHRC_FILE
     sed -i 's/HISTFILESIZE=2000/HISTFILESIZE=20000/' $BASHRC_FILE
