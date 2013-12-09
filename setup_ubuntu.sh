@@ -82,8 +82,8 @@ function install_software()
 function config_software()
 {
     # 设置标题栏最大，最小化居右（适用于ubuntu12.xx）
-    gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
-
+    #gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
+    gconftool-2 --set /apps/metacity/general/button_layout --type string "menu:minimize,maximize,close"
     # 配置Git信息
     git config --global user.name "$GIT_USERNAME"
     git config --global user.email "$GIT_EMAIL"
@@ -104,6 +104,8 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 
 PS1='[ \[\033[01;34m\]\w\[\033[00m\] ]\n\[\033[01;32m\]\u@\h\[\033[00m\]:\$ '
 
+# 禁用触摸板
+sudo modprobe -r psmouse
 EOF
     # 让命令行支持vi模式
     echo "set -o vi" >> $BASHRC_FILE
