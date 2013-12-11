@@ -84,7 +84,7 @@ function main()
 {
     set_env
     create_update_project
-    build
+#    build
 }
 
 main
