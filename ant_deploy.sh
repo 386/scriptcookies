@@ -30,7 +30,7 @@ function set_env()
     ######################################################
     # EDIT BELOW VARIABLES AS NEEDED
     ######################################################
-    # EDIT BELOW VARIABLES AS NEEDED
+
     ANT_HOME="$HOME/bin/apache-ant-1.9.2"
     JAVA_HOME="/usr/local/lib/jdk1.7.0_45"
     ANDROID_HOME="$HOME/bin/adt-bundle-linux-x86-20131030/sdk"
@@ -93,10 +93,7 @@ EOF
 
 function edit_proguard()
 {
-    echo "proguard.config=$PROGUARD_CFG" >> $PROJECT_PROPERTIES
-    # TO DO:
-    # how to gen config $PROGUARD_CFG
-    touch $PROGUARD_CFG
+    sed -i 's/^#proguard.config/proguard.config/'  $PROJECT_PROPERTIES
 }
 
 function create_key()
