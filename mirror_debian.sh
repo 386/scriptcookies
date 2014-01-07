@@ -34,7 +34,7 @@ section=main,non-free,contrib
 
 # Release=      -d      # Release of the system (Dapper, Edgy, Feisty, Gutsy, Hardy, Intrepid), and the -updates and -security ( -backports can be added if desired)
 #
-release=wheezy,wheezy-proposed-updates
+release=wheezy,wheezy-proposed-updates,wheezy-updates
 
 # Server=       -h      # Server name, minus the protocol and the path at the end
 # CHANGE "*" to equal the mirror you want to create your mirror from. au. in Australia  ca. in Canada.
