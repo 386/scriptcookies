@@ -93,6 +93,7 @@ debmirror       -a $arch \
                 -h $server \
                 -d $release \
                 -r $inPath \
+                --i18n \
                 --progress \
                 -e $proto \
                 --rsync-options="$rsync_options" \

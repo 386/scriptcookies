@@ -109,10 +109,19 @@ function create_key()
         -dname "$DNAME"
 }
 
+
+function update_project()
+{
+    android update project --target $ANDROID_TARGET \
+            --name $PROJECT_NAME  --path $PROJECT_PATH --subprojects
+}
+
+
 function main()
 {
     set_env
-    create_key
+    update_project
+#    create_key
     edit_ant_priority
     edit_proguard
     relase_apk
