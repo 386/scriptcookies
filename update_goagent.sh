@@ -10,36 +10,48 @@
 # https://code.google.com/p/goagent/wiki/FAQ
 #############################################################
 
+#############################################################
+# ** NOTE **
+#
+# 安装Goagent需要使用到的依赖
+# sudo apt-get install -y python-dev python-greenlet python-gevent python-vte \
+#   python-openssl python-crypto python-appindicator python-openssl
+#############################################################
+
+GOAGENT_URL="https://nodeload.github.com/goagent/goagent/legacy.zip/3.0"
+GOAENT_DIR="$HOME/bin"
+APP_ID=""
+
 function die()
 {
     echo "$1"
     exit 1
 }
 
-# 安装依赖
-# sudo apt-get install -y python-dev python-greenlet python-gevent python-vte \
-#   python-openssl python-crypto python-appindicator python-openssl
-
-GOAGENT_URL="https://nodeload.github.com/goagent/goagent/legacy.zip/3.0"
-GOAENT_DIR="$HOME/bin"
-
 version=$(curl -Is $GOAGENT_URL | grep -o 'filename=.*.zip' | cut -d '-' -f 3)
-echo $version
-test -z "$version" && die "Get goagent version faild"
-test -f "$version.zip" ||
-    (echo "Download $version.zip ..." &&
-        wget -q $GOAGENT_URL -O /tmp/$version.zip || die "Download $version.zip failed")
+test -z "$version" &&
+    die "Get goagent version faild" ||
+        echo "Get goagent $version"
 
 test -d $GOAGET_DIR ||
     (mkdir -p $GOAGET_DIR || die "Create $GOAGET_DIR Failed")
 
-unzip -oqd $GOAENT_DIR /tmp/$version.zip || die "Invalid /tmp/$version.zip file"
+test -f "$GOAENT_DIR/$version.zip" ||
+    (echo "Download $version.zip ..." &&
+        wget -q $GOAGENT_URL -O $GOAENT_DIR/$version.zip || die "Download $version.zip failed")
+
+
+rm -rf $GOAENT_DIR/goagent-goagent-* &&
+    unzip -oqd $GOAENT_DIR $GOAENT_DIR/$version.zip || die "Invalid $GOAENT_DIR/$version.zip file"
+
 test -d $GOAENT_DIR/goagent-$version &&
     echo "mv origin $GOAENT_DIR/goagent-$version to $GOAENT_DIR/goagent-$version-bak" &&
         mv $GOAENT_DIR/goagent-$version $GOAENT_DIR/goagent-$version-bak
 
-mv $GOAENT_DIR/goagent-goagent-* $GOAENT_DIR/goagent-$version &&
-    rm -f /tmp/$version.zip
+mv $GOAENT_DIR/goagent-goagent-* $GOAENT_DIR/goagent-$version
+python $GOAENT_DIR/goagent-$version/server/uploader.zip
+
+
 
 # TO DO:
 #
