@@ -7,3 +7,7 @@
 * mirrorbuild.sh: 制作本地的APT源镜像，脚本中会同时制作10.04和12.04的源。
 * change_userinfo.sh: 改变提交到Github上所有的提交人的信息
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/crazygit/scriptcookies/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
