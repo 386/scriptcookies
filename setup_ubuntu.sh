@@ -88,6 +88,11 @@ function config_software()
     git config --global user.name "$GIT_USERNAME"
     git config --global user.email "$GIT_EMAIL"
     git config --global color.ui auto
+    # 设置默认push和pull的location
+    git config --global branch.master.remote origin
+    git config --global branch.master.merge refs/heads/master
+    # 如果用gerrit，可以针对项目设置默认push的branch
+    # git config remote.origin.push HEAD:refs/for/master
 
     # 给man pages添加颜色
     BASHRC_FILE="$HOME/.bashrc"
