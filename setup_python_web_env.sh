@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-#########################################################
+
+#######################################################################
 # Usage  : setup python work env script
 # Author : Liang Lin
 # Mail   : lin.liang@tcl.com
 # Date   : 2014-04-22
-#########################################################
+# PS     : Feel free to contact me for any questions about this script
+#######################################################################
 
 #set -x
+
 export PS4='\033[01;32m+[${BASH_SOURCE}:${LINENO}]: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }\033[00m'
 
 function warn()
