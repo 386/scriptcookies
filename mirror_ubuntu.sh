@@ -8,8 +8,10 @@ cat<< EOF
 sudo apt-get install debmirror
 
 # Set up keyring to correctly verify Release signatures
-gpg --no-default-keyring --keyring pubring.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
-gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
+GNUPGHOME="$HOME/.gnupg"
+test -f $GNUPGHOME/pubring.gpg || gpg --no-default-keyring --keyring pubring.gpg --import /usr/share/keyrings/ubuntu-archive-keyring.gpg
+test -f $GNUPGHOME/trustedkeys.gpg || gpg --no-default-keyring --keyring trustedkeys.gpg --import /usr/share/keyrings/ubuntu-archive-keyring. gpg
+
 
 # add public key for puppet
 wget http://apt.puppetlabs.com/keyring.gpg -O /tmp/keyring.gpg
