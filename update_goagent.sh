@@ -15,7 +15,7 @@
 #
 # 安装Goagent需要使用到的依赖
 # sudo apt-get install -y python-dev python-greenlet python-gevent python-vte \
-#   python-openssl python-crypto python-appindicator python-openssl
+#   python-openssl python-crypto python-appindicator
 #############################################################
 
 GOAGENT_URL="https://nodeload.github.com/goagent/goagent/legacy.zip/3.0"

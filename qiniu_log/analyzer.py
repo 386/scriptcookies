@@ -94,23 +94,29 @@ class BaseSearch():
 
 class OverallSearch(BaseSearch):
 
+    # Total Requests
     @query
     def get_total_requests(self):
         return 'hits.total'
 
-    # FIXME: result may be not correct
+    # Unique Visitors
     @query
     def get_unique_visitors(self):
+        def parser(result):
+            return len(result["aggregations"]["unique_visitors"]["buckets"])
+
         aggs = {
             "unique_visitors": {
-                "cardinality": {
+                "terms": {
                     "field": "clientip",
+                    "size": 0
                 }
             }
         }
 
         return locals()
 
+    # all referrers
     @query
     def get_referrers(self):
 
@@ -144,21 +150,29 @@ class OverallSearch(BaseSearch):
 
         return locals()
 
-    # FIXME: result may be not correct
+    # Unique files
     @query
     def get_unique_files(self):
+
+        def parser(result):
+            return len(result["aggregations"]["unique_files"]["buckets"])
+
         aggs = {
             "unique_files": {
-                "cardinality": {
+                "terms": {
                     "field": "request",
+                    "size": 0
                 }
             }
         }
         return locals()
 
-    # FIXME: result may be not correct
+    # unique 404
     @query
     def get_unique_404(self):
+        def parser(result):
+            return len(result["aggregations"]["response_404"]["buckets"])
+
         filtered_dict = {
             "filter": {
                 "term": {
@@ -166,19 +180,23 @@ class OverallSearch(BaseSearch):
                 }
             }
         }
+
         aggs = {
             "response_404": {
                 "terms": {
-                    "field": "request",
+                    "field": "request.raw",
+                    "size": 0
                 }
             }
         }
         return locals()
 
+    # total band width
     @query
     def get_band_width(self):
 
         def parser(result):
+
             return {"band_width":
                     Utils.human_readable(
                         result["aggregations"]["band_width"]["value"])
@@ -195,8 +213,162 @@ class OverallSearch(BaseSearch):
 
         return locals()
 
+    # Top Requested Files sorted by band_width
+    @query
+    def requested_files(self, aggs_size=100, order={"band_width": "desc"}):
+
+        def parser(result):
+            buckets = result["aggregations"]["referrers"]["buckets"]
+            res = []
+            for b in buckets:
+                res.append({
+                    "url": b["key"],
+                    "hits": b["doc_count"],
+                    "band_width": Utils.human_readable(b["band_width"]["value"])
+                })
+
+            return res
+
+        aggs = {
+            "referrers": {
+                "terms": {
+                    "field": "request.raw",
+                    "size": aggs_size,
+                    "order": order
+                },
+                "aggs": {
+                    "band_width":
+                    {
+                        "sum": {
+                            "field": "bytes"
+                        }
+                    },
+                }
+            }
+        }
+
+        return locals()
+
+    # Top 404 Not Found URLs sorted by band_width
+    @query
+    def http_404_urls(self, aggs_size=100, order={"band_width": "desc"}):
+
+        def parser(result):
+            buckets = result["aggregations"]["referrers"]["buckets"]
+            res = []
+            for b in buckets:
+                res.append({
+                    "url": b["key"],
+                    "hits": b["doc_count"],
+                    "band_width": Utils.human_readable(b["band_width"]["value"])
+                })
+
+            return res
+
+        filtered_dict = {
+            "filter": {
+                "term": {
+                    "response": "404"
+                }
+            }
+        }
+
+        aggs = {
+            "referrers": {
+                "terms": {
+                    "field": "request.raw",
+                    "size": aggs_size,
+                    "order": order
+                },
+                "aggs": {
+                    "band_width":
+                        {
+                            "sum": {
+                                "field": "bytes"
+                            }
+                        },
+                }
+            }
+        }
+
+        return locals()
+
+    # Top Hosts sorted by band_width
+    @query
+    def hosts(self, aggs_size=100, order={"band_width": "desc"}):
+
+        def parser(result):
+            buckets = result["aggregations"]["referrers"]["buckets"]
+            res = []
+            for b in buckets:
+                res.append({
+                    "ip": b["key"],
+                    "hits": b["doc_count"],
+                    "band_width": Utils.human_readable(b["band_width"]["value"]),
+                    "country_name": b['country_name']["buckets"][0]["key"] if b['country_name']["buckets"] else "",
+                    "city_name": b['city_name']["buckets"][0]["key"] if b['city_name']["buckets"] else ""
+                })
+
+            return res
+
+        aggs = {
+            "referrers": {
+                "terms": {
+                    "field": "clientip",
+                    "size": aggs_size,
+                    "order": order
+                },
+                "aggs": {
+                    "band_width":
+                        {
+                            "sum": {
+                                "field": "bytes"
+                            }
+                        },
+                    # FIXME: find a good way to display city_name and
+                    # country_name
+                    "city_name": {
+                            "terms": {
+                                "field": "geoip.city_name"
+                            }
+                            },
+                    "country_name": {
+                        "terms": {
+                            "field": "geoip.country_name"
+                        }
+                            }
+                }
+            }
+        }
+
+        return locals()
+
+    @query
+    def agents(self):
+        aggs = {
+            "agents": {
+                "terms": {
+                    "field": "agent.raw",
+                }
+            }
+        }
+
+        return locals()
+
+    @query
+    def http_status_codes(self):
+        aggs = {
+            "responses": {
+                "terms": {
+                    "field": "response",
+                }
+            }
+        }
+        return locals()
+
 if __name__ == "__main__":
     overall = OverallSearch()
     # print overall.get_total_requests()
     # print overall.get_unique_visitors()
-    Utils.pd(overall.get_band_width())
+    # Utils.pd(overall.get_band_width())
+    Utils.pd(overall.get_unique_404())

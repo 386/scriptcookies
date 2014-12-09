@@ -4,8 +4,8 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import reindex
 
 ELASTICSEARCH_ALIAS = 'qiniu'
-ELASTICSEARCH_INDEX = 'qiniu_log_v2'
-ELASTICSEARCH_INDEX_NEW = 'qiniu_log'
+ELASTICSEARCH_INDEX = 'qiniu_log'
+ELASTICSEARCH_INDEX_NEW = 'qiniu_log_v1'
 ELASTICSEARCH_TYPE = 'appstore'
 es = Elasticsearch()
 

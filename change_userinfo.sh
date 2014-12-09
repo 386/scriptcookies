@@ -23,4 +23,4 @@ export GIT_AUTHOR_NAME="$an"
 export GIT_AUTHOR_EMAIL="$am"
 export GIT_COMMITTER_NAME="$cn"
 export GIT_COMMITTER_EMAIL="$cm"
-'  -f -- --all
+' -f -- --all
