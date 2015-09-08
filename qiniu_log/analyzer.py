@@ -24,7 +24,7 @@ class Utils():
             if abs(num) < 1024.0:
                 return "%3.2f%s%s" % (num, unit, suffix)
             num /= 1024.0
-        return "%.2f%s%s" % (num, 'Yi', suffix)
+        return "%.2f%s%s" % (num, 'Y', suffix)
 
 
 def query(f):
